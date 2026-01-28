@@ -11,20 +11,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: 登录与双重测试
+      - name: 最终通关方案
         run: |
-          # 定义你的专属长地址和通用地址
-          LONG_REG=crpi-qqjl0l7s0491bust.cn-hangzhou.personal.cr.aliyuncs.com
-          SHORT_REG=registry.cn-hangzhou.aliyuncs.com
-          
-          # 尝试登录长地址
-          echo "尝试登录专属长地址..."
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login $LONG_REG --username=${{ secrets.ACR_USERNAME }} --password-stdin || echo "长地址登录失败，尝试通用地址..."
-          
-          # 尝试登录通用地址
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login $SHORT_REG --username=${{ secrets.ACR_USERNAME }} --password-stdin
+          # 1. 登录 (强制使用最基础的域名)
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login registry.cn-hangzhou.aliyuncs.com --username=${{ secrets.ACR_USERNAME }} --password-stdin
 
-          # 执行搬运（这里我们先用通用地址试一次，因为那个长地址目前看起来 DNS 有问题）
+          # 2. 拉取并改名
+          # 既然你手动创了 node 仓库，目标就固定为 node
           docker pull node:18-alpine
-          docker tag node:18-alpine $SHORT_REG/lichunpeng/node:18-alpine
-          docker push $SHORT_REG/lichunpeng/node:18-alpine
+          docker tag node:18-alpine registry.cn-hangzhou.aliyuncs.com/lichunpeng/node:18-alpine
+          
+          # 3. 推送
+          docker push registry.cn-hangzhou.aliyuncs.com/lichunpeng/node:18-alpine
