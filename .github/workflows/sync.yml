@@ -20,17 +20,20 @@ jobs:
 
       - name: 搬运
         run: |
-          # 你的命名空间已经填好
+          # 1. 设置变量
           NAMESPACE=lichunpeng
+          REPO_NAME=node
+          TAG=18-alpine
           
-          IMG_NAME=${{ github.event.inputs.img }}
-          # 拼接完整的目标地址
-          TARGET=registry.cn-hangzhou.aliyuncs.com/$NAMESPACE/$IMG_NAME
+          # 2. 定义完整的阿里云目标地址
+          TARGET=registry.cn-hangzhou.aliyuncs.com/$NAMESPACE/$REPO_NAME:$TAG
           
-          echo "正在从 Docker Hub 拉取 $IMG_NAME..."
-          docker pull $IMG_NAME
+          # 3. 开始执行
+          echo "正在从官方拉取..."
+          docker pull node:$TAG
           
-          echo "正在标记并推送至 $TARGET..."
-          docker tag $IMG_NAME $TARGET
+          echo "正在打标签并推送到阿里云..."
+          docker tag node:$TAG $TARGET
           docker push $TARGET
+          
           echo "搬运成功！"
