@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       img:
-        description: '镜像名，如 node:18-alpine'
+        description: '镜像名'
         required: true
         default: 'node:18-alpine'
 
@@ -14,21 +14,21 @@ jobs:
       - name: 登录阿里云
         uses: docker/login-action@v3
         with:
-          # 关键：这里必须换成你截图里的那个专属地址
-          registry: crpi-qqjl0l7s0491bust.cn-hangzhou.personal.cr.aliyuncs.com
+          # 使用最稳的公网地址
+          registry: registry.cn-hangzhou.aliyuncs.com
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: 登录并搬运
+      - name: 搬运
         run: |
-          # 1. 登录 (使用最稳的杭州公网地址)
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login registry.cn-hangzhou.aliyuncs.com --username=${{ secrets.ACR_USERNAME }} --password-stdin
-
-          # 2. 搬运
           NAMESPACE=lichunpeng
-          REPO=node
-          TAG=18-alpine
+          # 这里也统一使用公网地址
+          REGISTRY=registry.cn-hangzhou.aliyuncs.com
           
-          docker pull node:$TAG
-          docker tag node:$TAG registry.cn-hangzhou.aliyuncs.com/$NAMESPACE/$REPO:$TAG
-          docker push registry.cn-hangzhou.aliyuncs.com/$NAMESPACE/$REPO:$TAG
+          IMG_NAME=${{ github.event.inputs.img }}
+          TARGET=$REGISTRY/$NAMESPACE/$IMG_NAME
+          
+          echo "正在搬运 $IMG_NAME 到 $TARGET ..."
+          docker pull $IMG_NAME
+          docker tag $IMG_NAME $TARGET
+          docker push $TARGET
