@@ -1,0 +1,24 @@
+name: 镜像搬运工
+on:
+  workflow_dispatch:
+    inputs:
+      img:
+        description: '镜像名，如 node:18-alpine'
+        required: true
+        default: 'node:18-alpine'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 登录阿里云
+        uses: docker/login-action@v3
+        with:
+          registry: registry.cn-hangzhou.aliyuncs.com
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+      - name: 搬运
+        run: |
+          docker pull ${{ github.event.inputs.img }}
+          docker tag ${{ github.event.inputs.img }} registry.cn-hangzhou.aliyuncs.com/你的命名空间/${{ github.event.inputs.img }}
+          docker push registry.cn-hangzhou.aliyuncs.com/你的命名空间/${{ github.event.inputs.img }}
