@@ -12,23 +12,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 登录阿里云
-        uses: docker/login-action@v3
-        with:
-          # 使用最稳的公网地址
-          registry: registry.cn-hangzhou.aliyuncs.com
-          username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ACR_PASSWORD }}
-
-      - name: 搬运
         run: |
+          # 使用你截图里的新版公网地址
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login --username=${{ secrets.ACR_USERNAME }} --password-stdin crpi-qqjl0l7s0491bust.cn-hangzhou.personal.cr.aliyuncs.com
+
+      - name: 搬运镜像
+        run: |
+          # 1. 设置变量（根据你的截图精准填写）
+          REGISTRY=crpi-qqjl0l7s0491bust.cn-hangzhou.personal.cr.aliyuncs.com
           NAMESPACE=lichunpeng
-          # 这里也统一使用公网地址
-          REGISTRY=registry.cn-hangzhou.aliyuncs.com
+          REPO=node
+          TAG=18-alpine
           
-          IMG_NAME=${{ github.event.inputs.img }}
-          TARGET=$REGISTRY/$NAMESPACE/$IMG_NAME
-          
-          echo "正在搬运 $IMG_NAME 到 $TARGET ..."
-          docker pull $IMG_NAME
-          docker tag $IMG_NAME $TARGET
-          docker push $TARGET
+          # 2. 执行搬运
+          docker pull node:$TAG
+          docker tag node:$TAG $REGISTRY/$NAMESPACE/$REPO:$TAG
+          docker push $REGISTRY/$NAMESPACE/$REPO:$TAG
