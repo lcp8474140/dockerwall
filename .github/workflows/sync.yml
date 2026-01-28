@@ -17,8 +17,20 @@ jobs:
           registry: registry.cn-hangzhou.aliyuncs.com
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
+
       - name: 搬运
         run: |
-          docker pull ${{ github.event.inputs.img }}
-          docker tag ${{ github.event.inputs.img }} registry.cn-hangzhou.aliyuncs.com/你的命名空间/${{ github.event.inputs.img }}
-          docker push registry.cn-hangzhou.aliyuncs.com/你的命名空间/${{ github.event.inputs.img }}
+          # 你的命名空间已经填好
+          NAMESPACE=lichunpeng
+          
+          IMG_NAME=${{ github.event.inputs.img }}
+          # 拼接完整的目标地址
+          TARGET=registry.cn-hangzhou.aliyuncs.com/$NAMESPACE/$IMG_NAME
+          
+          echo "正在从 Docker Hub 拉取 $IMG_NAME..."
+          docker pull $IMG_NAME
+          
+          echo "正在标记并推送至 $TARGET..."
+          docker tag $IMG_NAME $TARGET
+          docker push $TARGET
+          echo "搬运成功！"
