@@ -19,18 +19,16 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: 搬运
+      - name: 登录并搬运
         run: |
-          # 设置变量
-          NEW_REGISTRY=crpi-qqjl0l7s0491bust.cn-hangzhou.personal.cr.aliyuncs.com
+          # 1. 登录 (使用最稳的杭州公网地址)
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login registry.cn-hangzhou.aliyuncs.com --username=${{ secrets.ACR_USERNAME }} --password-stdin
+
+          # 2. 搬运
           NAMESPACE=lichunpeng
-          REPO_NAME=node
+          REPO=node
           TAG=18-alpine
           
-          TARGET=$NEW_REGISTRY/$NAMESPACE/$REPO_NAME:$TAG
-          
-          echo "正在搬运到 $TARGET ..."
           docker pull node:$TAG
-          docker tag node:$TAG $TARGET
-          docker push $TARGET
-          echo "搬运成功！"
+          docker tag node:$TAG registry.cn-hangzhou.aliyuncs.com/$NAMESPACE/$REPO:$TAG
+          docker push registry.cn-hangzhou.aliyuncs.com/$NAMESPACE/$REPO:$TAG
