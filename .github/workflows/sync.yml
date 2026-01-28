@@ -14,26 +14,23 @@ jobs:
       - name: 登录阿里云
         uses: docker/login-action@v3
         with:
-          registry: registry.cn-hangzhou.aliyuncs.com
+          # 关键：这里必须换成你截图里的那个专属地址
+          registry: crpi-qqjl0l7s0491bust.cn-hangzhou.personal.cr.aliyuncs.com
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
       - name: 搬运
         run: |
-          # 1. 设置变量
+          # 设置变量
+          NEW_REGISTRY=crpi-qqjl0l7s0491bust.cn-hangzhou.personal.cr.aliyuncs.com
           NAMESPACE=lichunpeng
           REPO_NAME=node
           TAG=18-alpine
           
-          # 2. 定义完整的阿里云目标地址
-          TARGET=registry.cn-hangzhou.aliyuncs.com/$NAMESPACE/$REPO_NAME:$TAG
+          TARGET=$NEW_REGISTRY/$NAMESPACE/$REPO_NAME:$TAG
           
-          # 3. 开始执行
-          echo "正在从官方拉取..."
+          echo "正在搬运到 $TARGET ..."
           docker pull node:$TAG
-          
-          echo "正在打标签并推送到阿里云..."
           docker tag node:$TAG $TARGET
           docker push $TARGET
-          
           echo "搬运成功！"
