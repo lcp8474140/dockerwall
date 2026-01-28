@@ -11,20 +11,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: 登录阿里云
+      - name: 登录并搬运
         run: |
-          # 使用你截图里的新版公网地址
-          echo "${{ secrets.ACR_PASSWORD }}" | docker login --username=${{ secrets.ACR_USERNAME }} --password-stdin crpi-qqjl0l7s0491bust.cn-hangzhou.personal.cr.aliyuncs.com
-
-      - name: 搬运镜像
-        run: |
-          # 1. 设置变量（根据你的截图精准填写）
+          # 1. 设置你的专属长地址变量
           REGISTRY=crpi-qqjl0l7s0491bust.cn-hangzhou.personal.cr.aliyuncs.com
-          NAMESPACE=lichunpeng
-          REPO=node
-          TAG=18-alpine
           
-          # 2. 执行搬运
-          docker pull node:$TAG
-          docker tag node:$TAG $REGISTRY/$NAMESPACE/$REPO:$TAG
-          docker push $REGISTRY/$NAMESPACE/$REPO:$TAG
+          # 2. 尝试登录（手动传入长地址）
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login $REGISTRY --username=${{ secrets.ACR_USERNAME }} --password-stdin
+
+          # 3. 执行搬运
+          docker pull node:18-alpine
+          docker tag node:18-alpine $REGISTRY/lichunpeng/node:18-alpine
+          docker push $REGISTRY/lichunpeng/node:18-alpine
